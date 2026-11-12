@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bush Bean Bed Planner</title>
+<meta name="description" content="Slide in your garden bed size and see exactly where to plant bush beans at optimal density.">
+<meta name="theme-color" content="#1f3d2b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f1e8; --card:#fffdf8; --ink:#1f2a22; --muted:#6b7468;
+  --leaf:#3f7d4e; --leaf-dark:#1f3d2b; --soil:#7a5638; --soil-2:#8d6744;
+  --line:#e6dfd0; --accent:#d9a441;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  font-family:Inter,system-ui,-apple-system,sans-serif; color:var(--ink);
+  background:radial-gradient(1200px 600px at 50% -200px,#e4ecd9 0%,var(--bg) 60%);
+  min-height:100vh; -webkit-font-smoothing:antialiased;
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+}
+.wrap{max-width:560px; margin:0 auto; padding:28px 18px 48px}
+header{text-align:center; margin-bottom:22px}
+.eyebrow{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--leaf); font-weight:600}
+h1{font-family:Fraunces,Georgia,serif; font-size:clamp(30px,8vw,40px); line-height:1.08; margin:8px 0 10px; color:var(--leaf-dark)}
+.sub{color:var(--muted); font-size:15px; line-height:1.5; margin:0 auto; max-width:40ch}
+.card{background:var(--card); border:1px solid var(--line); border-radius:20px; padding:18px; box-shadow:0 1px 0 rgba(0,0,0,.02),0 12px 30px -18px rgba(31,61,43,.35)}
+.result{display:flex; align-items:baseline; justify-content:center; gap:10px; flex-wrap:wrap; text-align:center; margin:4px 0 14px}
+.big{font-family:Fraunces,Georgia,serif; font-size:56px; line-height:1; color:var(--leaf-dark); font-variant-numeric:tabular-nums}
+.big-label{font-size:16px; color:var(--muted)}
+.stats{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px}
+.stat{background:#f3efe4; border-radius:12px; padding:10px 6px; text-align:center}
+.stat b{display:block; font-size:18px; font-variant-numeric:tabular-nums}
+.stat span{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em}
+.bed-box{border-radius:14px; background:linear-gradient(180deg,#eef3e6,#e6eedb); padding:6px; overflow:hidden}
+svg{display:block; width:100%; height:auto; max-height:52vh}
+.controls{margin-top:18px; display:grid; gap:18px}
+.ctrl label{display:flex; justify-content:space-between; align-items:baseline; font-weight:600; font-size:15px; margin-bottom:8px}
+.ctrl output{font-variant-numeric:tabular-nums; color:var(--leaf-dark); font-family:Fraunces,Georgia,serif; font-size:20px}
+input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:32px; background:transparent; margin:0}
+input[type=range]:focus{outline:none}
+input[type=range]::-webkit-slider-runnable-track{height:8px; border-radius:99px; background:linear-gradient(90deg,var(--leaf) var(--p,50%),#e2dccd var(--p,50%))}
+input[type=range]::-moz-range-track{height:8px; border-radius:99px; background:#e2dccd}
+input[type=range]::-moz-range-progress{height:8px; border-radius:99px; background:var(--leaf)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:28px; height:28px; border-radius:50%; background:#fff; border:3px solid var(--leaf); margin-top:-10px; box-shadow:0 2px 6px rgba(0,0,0,.2)}
+input[type=range]::-moz-range-thumb{width:22px; height:22px; border-radius:50%; background:#fff; border:3px solid var(--leaf); box-shadow:0 2px 6px rgba(0,0,0,.2)}
+input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 5px rgba(63,125,78,.25)}
+details{margin-top:18px; font-size:14px; color:var(--muted); line-height:1.6}
+summary{cursor:pointer; font-weight:600; color:var(--ink); list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"+ "; color:var(--leaf)}
+details[open] summary::before{content:"− "}
+code{background:#f0ebdf; padding:1px 6px; border-radius:6px; font-size:13px; color:var(--ink)}
+footer{text-align:center; color:var(--muted); font-size:12px; margin-top:22px}
+@media (min-width:700px){ .wrap{padding-top:56px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Garden bed planner</div>
+    <h1>How many bush beans fit in your bed?</h1>
+    <p class="sub">Slide in your bed's size to see where each plant goes at the optimal density.</p>
+  </header>
+
+  <main class="card">
+    <div class="result" aria-live="polite">
+      <span class="big" id="count">55</span>
+      <span class="big-label">bush beans, <strong id="spacingText">9</strong> inches apart</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><b id="cols">11</b><span>Per row</span></div>
+      <div class="stat"><b id="rows">5</b><span>Rows</span></div>
+      <div class="stat"><b id="area">36</b><span>Sq ft</span></div>
+    </div>
+
+    <div class="bed-box"><svg id="bed" role="img" aria-label="Garden bed diagram"></svg></div>
+
+    <div class="controls">
+      <div class="ctrl">
+        <label for="len">Bed length <output id="lenOut">9 ft</output></label>
+        <input id="len" type="range" min="1" max="20" step="0.5" value="9">
+      </div>
+      <div class="ctrl">
+        <label for="wid">Bed width <output id="widOut">4 ft</output></label>
+        <input id="wid" type="range" min="1" max="8" step="0.5" value="4">
+      </div>
+    </div>
+
+    <details>
+      <summary>How it's calculated</summary>
+      <p>The target density for bush beans is <code>18.76</code> plants per square meter. On a square grid, that means one plant every <code>39.37 ÷ √18.76 ≈ 9.1</code> inches (39.37 inches in a meter).</p>
+      <p>Plants per row = bed length ÷ spacing, rounded down. Rows = bed width ÷ spacing, rounded down. Total = plants per row × rows. The grid is centered in the bed, so any leftover space is split evenly around the edges.</p>
+    </details>
+  </main>
+
+  <footer>Based on an interactive Desmos bush bean chart.</footer>
+</div>
+
+<script>
+const N_OPT = 18.76;                         // plants per m²
+const S_FT = (39.37 / Math.sqrt(N_OPT)) / 12; // spacing in feet
+const $ = id => document.getElementById(id);
+const fmt = v => (Number.isInteger(v) ? v : v.toFixed(1)) + " ft";
+const NS = "http://www.w3.org/2000/svg";
+const el = (t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+
+function fill(input){
+  const p = (input.value - input.min) / (input.max - input.min) * 100;
+  input.style.setProperty("--p", p + "%");
+}
+
+function render(){
+  const L = +$("len").value, W = +$("wid").value;
+  const c = Math.floor(L / S_FT + 1e-9), r = Math.floor(W / S_FT + 1e-9);
+  const P = r * c, g = Math.round(S_FT * 12);
+
+  $("count").textContent = P;
+  $("spacingText").textContent = g;
+  $("cols").textContent = c;
+  $("rows").textContent = r;
+  $("area").textContent = +(L * W).toFixed(2);
+  $("lenOut").textContent = fmt(L);
+  $("widOut").textContent = fmt(W);
+  fill($("len")); fill($("wid"));
+
+  drawIso(L, W, c, r, g);
+}
+
+
+// ---------- Isometric bed ----------
+const COS = Math.cos(Math.PI/6), SIN = Math.sin(Math.PI/6);
+const iso = (x, y, z=0) => [ (x - y) * COS, (x + y) * SIN - z ];
+const pts = a => a.map(p => p.join(",")).join(" ");
+const poly = (arr, fill, extra={}) => el("polygon", Object.assign({points: pts(arr), fill}, extra));
+
+function drawIso(L, W, c, r, g){
+  const svg = $("bed"); svg.replaceChildren();
+  const H = 0.75;            // wall height (ft)
+  const T = 0.16;            // wall thickness (ft)
+  const SOIL = H - 0.12;     // soil surface height
+
+  // Bounds for viewBox (include label room)
+  const corners = [iso(-T,-T,H), iso(L+T,-T,0), iso(-T,W+T,0), iso(L+T,W+T,0), iso(L+T,-T,H), iso(-T,W+T,H)];
+  const xs = corners.map(p=>p[0]), ys = corners.map(p=>p[1]);
+  const span = Math.max(Math.max(...xs)-Math.min(...xs), 6);
+  const fs = Math.max(0.32, span * 0.045);
+  const m = fs * 2.4;
+  const minX = Math.min(...xs) - m, maxX = Math.max(...xs) + m;
+  const minY = Math.min(...ys) - fs*1.2, maxY = Math.max(...ys) + m;
+  svg.setAttribute("viewBox", `${minX} ${minY} ${maxX-minX} ${maxY-minY}`);
+
+  const defs = el("defs", {});
+  const grad = (id, a, b) => { const lg = el("linearGradient", {id, x1:0, y1:0, x2:0, y2:1}); lg.append(el("stop",{offset:0,"stop-color":a})); lg.append(el("stop",{offset:1,"stop-color":b})); defs.append(lg); };
+  grad("woodL", "#b98a5a", "#9c7046");
+  grad("woodR", "#a77a4c", "#86603b");
+  grad("soilG", "#6e4c31", "#5a3d27");
+  svg.append(defs);
+
+  // Ground shadow
+  const sh = [iso(-T-0.3,-T-0.1), iso(L+T+0.5,-T-0.1), iso(L+T+0.5,W+T+0.5), iso(-T-0.3,W+T+0.5)];
+  svg.append(poly(sh, "rgba(60,50,30,.12)"));
+
+  // Outer box (x0=-T..L+T, y0=-T..W+T)
+  const x0=-T, x1=L+T, y0=-T, y1=W+T;
+  // Front-left face (y = y1)
+  svg.append(poly([iso(x0,y1,0), iso(x1,y1,0), iso(x1,y1,H), iso(x0,y1,H)], "url(#woodL)"));
+  // Front-right face (x = x1)
+  svg.append(poly([iso(x1,y0,0), iso(x1,y1,0), iso(x1,y1,H), iso(x1,y0,H)], "url(#woodR)"));
+  // Plank lines
+  for (const z of [H/3, 2*H/3]){
+    svg.append(el("polyline", {points: pts([iso(x0,y1,z), iso(x1,y1,z), iso(x1,y0,z)]), fill:"none", stroke:"rgba(0,0,0,.12)", "stroke-width":0.025}));
+  }
+  // Top rim
+  svg.append(poly([iso(x0,y0,H), iso(x1,y0,H), iso(x1,y1,H), iso(x0,y1,H)], "#c99a68"));
+  // Inner well (inner walls visible: back walls)
+  svg.append(poly([iso(0,0,H), iso(L,0,H), iso(L,W,H), iso(0,W,H)], "#8a6440"));
+  svg.append(poly([iso(0,0,SOIL), iso(L,0,SOIL), iso(L,0,H), iso(0,0,H)], "#9a7048"));   // back-right inner wall
+  svg.append(poly([iso(0,0,SOIL), iso(0,W,SOIL), iso(0,W,H), iso(0,0,H)], "#7d5a39"));   // back-left inner wall
+  // Soil
+  svg.append(poly([iso(0,0,SOIL), iso(L,0,SOIL), iso(L,W,SOIL), iso(0,W,SOIL)], "url(#soilG)"));
+
+  // Faint planting grid + sprouts
+  const S = S_FT, ox = (L - c*S)/2, oy = (W - r*S)/2;
+  const spots = [];
+  for (let a=0; a<c; a++) for (let b=0; b<r; b++) spots.push([ox + S*(a+0.5), oy + S*(b+0.5)]);
+  spots.sort((p,q) => (p[0]+p[1]) - (q[0]+q[1]));
+  const k = Math.min(S*0.55, 0.42);   // sprout size
+  for (const [x,y] of spots){
+    const [X,Y] = iso(x,y,SOIL);
+    const gp = el("g", {transform:`translate(${X} ${Y})`});
+    gp.append(el("ellipse", {cx:0, cy:0, rx:k*0.38, ry:k*0.19, fill:"rgba(0,0,0,.25)"}));
+    gp.append(el("path", {d:`M0 0 Q ${-k*0.05} ${-k*0.4} 0 ${-k*0.7}`, stroke:"#3f7d4e", "stroke-width":k*0.09, fill:"none", "stroke-linecap":"round"}));
+    gp.append(el("path", {d:`M0 ${-k*0.62} C ${-k*0.15} ${-k*0.95}, ${-k*0.6} ${-k*0.95}, ${-k*0.62} ${-k*0.7} C ${-k*0.45} ${-k*0.55}, ${-k*0.15} ${-k*0.55}, 0 ${-k*0.62} Z`, fill:"#6cbf5f"}));
+    gp.append(el("path", {d:`M0 ${-k*0.66} C ${k*0.15} ${-k*1.02}, ${k*0.62} ${-k*1.0}, ${k*0.64} ${-k*0.76} C ${k*0.46} ${-k*0.58}, ${k*0.15} ${-k*0.58}, 0 ${-k*0.66} Z`, fill:"#4fa04a"}));
+    svg.append(gp);
+  }
+
+  // ---- Dimension labels ----
+  const ink = "#4d4a40";
+  const dim = (A, B, off, label, color=ink) => {
+    // A,B in ground coords [x,y]; off = ground-space offset vector
+    const a = iso(A[0]+off[0], A[1]+off[1], 0), b = iso(B[0]+off[0], B[1]+off[1], 0);
+    const g2 = el("g", {});
+    g2.append(el("line", {x1:a[0], y1:a[1], x2:b[0], y2:b[1], stroke:color, "stroke-width":fs*0.08}));
+    for (const [P, Q] of [[A,a],[B,b]]){
+      const p0 = iso(P[0]+off[0]*0.35, P[1]+off[1]*0.35, 0), p1 = iso(P[0]+off[0]*1.25, P[1]+off[1]*1.25, 0);
+      g2.append(el("line", {x1:p0[0], y1:p0[1], x2:p1[0], y2:p1[1], stroke:color, "stroke-width":fs*0.08}));
+    }
+    const mx = (a[0]+b[0])/2, my = (a[1]+b[1])/2;
+    let ang = Math.atan2(b[1]-a[1], b[0]-a[0]) * 180/Math.PI;
+    if (ang > 90) ang -= 180; if (ang < -90) ang += 180;
+    const n = 1;
+    const t = el("text", {x:mx, y:my, "font-size":fs, "text-anchor":"middle", "dominant-baseline":"middle", fill:color,
+      "font-family":"Inter, sans-serif", "font-weight":700, transform:`rotate(${ang} ${mx} ${my}) translate(0 ${fs*0.85*n})`});
+    t.textContent = label;
+    const bgw = label.length * fs * 0.6;
+    g2.append(t);
+    svg.append(g2);
+  };
+  const d = 0.55 + fs*0.6;
+  dim([x0, y1], [x1, y1], [0, d], fmt(L));          // length along front-left edge
+  dim([x1, y0], [x1, y1], [d, 0], fmt(W));          // width along front-right edge
+
+  // Spacing callout between first two plants on the back row (if 2+ columns)
+  if (c >= 2 && r >= 1){
+    const mid = Math.max(0, Math.floor(c/2) - 1);
+    const yb = oy + S*(r-0.5), xa = ox + S*(mid+0.5), xb = ox + S*(mid+1.5);
+    const a = iso(xa, yb, SOIL + k*1.25), b = iso(xb, yb, SOIL + k*1.25);
+    const col = "#b0731f";
+    svg.append(el("line", {x1:a[0], y1:a[1], x2:b[0], y2:b[1], stroke:col, "stroke-width":fs*0.07, "stroke-dasharray":`${fs*0.18} ${fs*0.12}`}));
+    for (const p of [a,b]) svg.append(el("circle", {cx:p[0], cy:p[1], r:fs*0.11, fill:col}));
+    const mx=(a[0]+b[0])/2, my=(a[1]+b[1])/2 - fs*1.5;
+    const lab = `${g}" apart`;
+    const w = lab.length*fs*0.58 + fs*0.6;
+    svg.append(el("rect", {x:mx-w/2, y:my-fs*0.7, width:w, height:fs*1.4, rx:fs*0.7, fill:"#fff8e8", stroke:col, "stroke-width":fs*0.06}));
+    const t = el("text", {x:mx, y:my, "font-size":fs*0.9, "text-anchor":"middle", "dominant-baseline":"central", fill:col, "font-family":"Inter, sans-serif", "font-weight":700});
+    t.textContent = lab; svg.append(t);
+  }
+}
+
+["len","wid"].forEach(id => $(id).addEventListener("input", render));
+render();
+</script>
+</body>
+</html>
